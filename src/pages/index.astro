@@ -1,16 +1,114 @@
 ---
-
+import Layout from "../components/layout.astro";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="Amma App - Home">
+  <div class="flex flex-col text-pink-600 gap-3">
+    <h3 class="font-sure text-md font-bold">Login</h3>
+    <p
+      class="hidden server-error text-red-500 underline decoration-wavy text-xs font-bold"
+    >
+    </p>
+    <form class="flex flex-col" id="loginForm">
+      <div class="flex flex-col text-left p-4 space-y-2">
+        <label for="email" class="font-bold text-sm">Email:*</label>
+        <input
+          class="form-input"
+          type="text"
+          id="email"
+          name="email"
+          placeholder="Surendar Yama"
+          required
+        />
+        <p
+          class="hidden email-error text-red-500 underline decoration-wavy text-xs font-bold"
+        >
+        </p>
+      </div>
+      <div class="flex flex-col text-left p-4 space-y-2">
+        <label for="password" class="font-bold text-sm">Password:*</label>
+        <input
+          class="form-input"
+          type="password"
+          id="password"
+          name="password"
+          placeholder="**********"
+          required
+        />
+        <p
+          class="hidden password-error text-red-500 underline decoration-wavy text-xs font-bold"
+        >
+        </p>
+      </div>
+      <div class="p-4">
+        <button
+          class="w-full bg-pink-600 text-white hover:bg-white hover:text-pink-600 border-2 border-pink-600 p-2 rounded-full"
+          type="submit">Login</button
+        >
+      </div>
+    </form>
+  </div>
+  <script>
+    import { actions, isInputError } from "astro:actions";
+    import { navigate } from "astro:transitions/client";
+
+    const loginButton = document.querySelector("button[type='submit']");
+    const form = document.querySelector("#loginForm") as HTMLFormElement;
+    const serverError = document.querySelector(".server-error")!;
+    const emailErrEl = document.querySelector(".email-error")!;
+    const passwordErrEl = document.querySelector(".password-error")!;
+
+    const formFeilds = document.querySelectorAll("input");
+    formFeilds.forEach((feild) =>
+      feild.addEventListener("focus", (e) => {
+        const feildName = (e.target as HTMLInputElement).name;
+        serverError.innerHTML = ``;
+        serverError.classList.add("hidden");
+        if (feildName === "email") {
+          emailErrEl.innerHTML = ``;
+          emailErrEl.classList.add("hidden");
+        }
+        if (feildName === "password") {
+          passwordErrEl.innerHTML = ``;
+          passwordErrEl.classList.add("hidden");
+        }
+      })
+    );
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form, loginButton as HTMLButtonElement);
+      const email = formData.get("email") as string,
+        password = formData.get("password") as string;
+      const { data, error } = await actions.auth.loginAction({
+        email,
+        password,
+      });
+      if (isInputError(error)) {
+        const emailInputError = error.fields.email;
+        const passwordInputError = error.fields.password;
+        if (emailInputError) {
+          emailErrEl.classList.remove("hidden");
+          emailErrEl.textContent = `*** ${emailInputError[0]} ***`;
+        } else if (passwordInputError) {
+          passwordErrEl.classList.remove("hidden");
+          passwordErrEl.textContent = `*** ${passwordInputError[0]} ***`;
+        }
+        return;
+      }
+      if (error) {
+        serverError.classList.remove("hidden");
+        serverError.textContent = "Invalid Email and Password";
+      }
+      if (!error) {
+        const userDetails = JSON.parse(data as string);
+        navigate("/home");
+        console.log(userDetails);
+      }
+    });
+  </script>
+  <style slot="client-css">
+    .form-input {
+      @apply border-2 text-pink-600 placeholder:text-pink-400  border-pink-600 focus:ring-[0px] px-4 py-1 rounded-full;
+    }
+  </style>
+</Layout>

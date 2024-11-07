@@ -1,0 +1,19 @@
+---
+import Head from "./head.astro";
+import Footer from "./footer.astro";
+const { title } = Astro.props;
+---
+
+<html lang="en">
+  <Head {title} />
+  <body class="font-sure">
+    <section class="flex flex-col items-center">
+      <div class="flex justify-center items-center text-center h-screen">
+        <slot />
+      </div>
+      <Footer />
+    </section>
+    <slot name="client-js" />
+    <slot name="client-css" />
+  </body>
+</html>
