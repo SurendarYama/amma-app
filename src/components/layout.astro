@@ -1,6 +1,5 @@
 ---
-import Head from "./head.astro";
-import Footer from "./footer.astro";
+import { Head, Footer } from "./index";
 const { title } = Astro.props;
 ---
 
@@ -13,7 +12,5 @@ const { title } = Astro.props;
       </div>
       <Footer />
     </section>
-    <slot name="client-js" />
-    <slot name="client-css" />
   </body>
 </html>

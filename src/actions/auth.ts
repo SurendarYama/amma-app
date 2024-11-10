@@ -28,7 +28,6 @@ export const auth = {
         );
         return JSON.stringify(userDetails);
       } catch ({ message, code }: any) {
-        console.log(code);
         throw new ActionError({
           code: "BAD_REQUEST",
           message,
